@@ -1,0 +1,33 @@
+version: '3.6'
+
+services:
+
+  postgres:
+    build: postgres
+    restart: always
+
+  redis:
+    build: redis
+    restart: always
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile-prod
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - CU_DEBUG=False
+      - CU_SECRET=${SECRET}
+    restart: always
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile-prod
+    depends_on:
+      - backend
+    ports:
+      - ${PORT:-80}:80
+    restart: always

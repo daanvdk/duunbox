@@ -1,0 +1,18 @@
+FROM python:3.7-buster
+
+RUN mkdir -p /app/media
+VOLUME /app/media
+
+RUN pip install -qU daphne==2.4.1
+
+COPY requirements.txt /app/src/requirements.txt
+WORKDIR /app/src
+
+RUN pip install -qUr requirements.txt
+
+COPY . /app/src
+
+EXPOSE 8000/tcp
+
+ENTRYPOINT ["daphne"]
+CMD ["-b", "0.0.0.0", "-p", "8000", "main.asgi:application"]
