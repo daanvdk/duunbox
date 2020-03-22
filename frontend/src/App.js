@@ -4,7 +4,7 @@ import Loadable from 'react-loadable';
 import Scrollbars from 'react-custom-scrollbars';
 import styled from 'styled-components';
 import theme from './theme';
-import Loader from './component/Loader';
+import { Loader, Toasts } from './component';
 
 function route(path) {
     return Loadable({
@@ -16,7 +16,7 @@ function route(path) {
     });
 }
 
-const Home = route('Home');
+const Game = route('Game');
 
 const Container = styled.div`
     height: 100%;
@@ -31,15 +31,20 @@ const Wrapper = styled.div`
 function App() {
     return (
         <Container>
-            <Scrollbars>
-                <Wrapper>
-                    <BrowserRouter>
-                        <Switch>
-                            <Route exact path="/" render={(props) => <Home {...props} />} />
-                        </Switch>
-                    </BrowserRouter>
-                </Wrapper>
-            </Scrollbars>
+            <Toasts>
+                <Scrollbars>
+                    <Wrapper>
+                        <BrowserRouter>
+                            <Switch>
+                                <Route exact
+                                    path="/:code?"
+                                    render={(props) => <Game {...props} />}
+                                />
+                            </Switch>
+                        </BrowserRouter>
+                    </Wrapper>
+                </Scrollbars>
+            </Toasts>
         </Container>
     );
 }

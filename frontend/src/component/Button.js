@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Icon from './Icon';
 import theme from '../theme';
 
@@ -22,19 +22,24 @@ const components = {
         }
 
         background-color: ${({ color, primary }) => color ? color : primary ? theme.primaryColor : theme.bgColorN1};
-        color: ${({ color, primary }) => color ? theme.textColor : primary ? theme.textColor : theme.textColorN1};
+        color: ${({ color, primary }) => color ? theme.bgColor : primary ? theme.bgColor : theme.textColorN1};
         border: unset;
         font-size: 1rem;
         font-weight: bold;
-        padding: 0.5rem 0.5rem 0.5rem ${({ icon }) => icon ? 2 : 0.5}rem;
+        padding: 0.5rem ${({ icon }) => icon ? 2 : 0.5}rem;
         text-align: center;
         border-radius: 0.5rem;
-        cursor: pointer;
-        &:hover, &:active, &:focus {
-            background-color: ${({ hoverColor, primary }) => hoverColor ? hoverColor : primary ? theme.primaryColorP1 : theme.bgColorN2};
-            color: ${({ hoverColor, primary }) => hoverColor ? theme.textColorN1 : primary ? theme.textColorP1 : theme.textColorN2};
-        }
-        transition: background-color 300ms ease, color 300ms ease;
+        ${({ disabled }) => disabled ? css`
+            cursor: not-allowed;
+            opacity: 0.8;
+        ` : css`
+            cursor: pointer;
+            &:hover, &:active, &:focus {
+                background-color: ${({ hoverColor, primary }) => hoverColor ? hoverColor : primary ? theme.primaryColorP1 : theme.bgColorN2};
+                color: ${({ hoverColor, primary }) => hoverColor ? theme.bgColorN1 : primary ? theme.bgColorP1 : theme.textColorN2};
+            }
+        `}
+        transition: opacity 300ms ease, background-color 300ms ease, color 300ms ease;
 
         position: relative;
     `,
@@ -47,19 +52,24 @@ const components = {
         }
 
         background-color: ${({ color, primary }) => color ? color : primary ? theme.primaryColor : theme.bgColorN1};
-        color: ${({ color, primary }) => color ? theme.textColor : primary ? theme.textColor : theme.textColorN1};
+        color: ${({ color, primary }) => color ? theme.bgColor : primary ? theme.bgColor : theme.textColorN1};
         border: unset;
         font-size: 1rem;
         font-weight: bold;
         padding: 0.5rem 0.5rem 0.5rem ${({ icon }) => icon ? 2 : 0.5}rem;
         text-align: center;
         border-radius: 0.5rem;
-        cursor: pointer;
-        &:hover, &:active, &:focus {
-            background-color: ${({ hoverColor, primary }) => hoverColor ? hoverColor : primary ? theme.primaryColorP1 : theme.bgColorN2};
-            color: ${({ hoverColor, primary }) => hoverColor ? theme.textColorN1 : primary ? theme.textColorP1 : theme.textColorN2};
-        }
-        transition: background-color 300ms ease, color 300ms ease;
+        ${({ disabled }) => disabled ? css`
+            cursor: not-allowed;
+            opacity: 0.8;
+        ` : css`
+            cursor: pointer;
+            &:hover, &:active, &:focus {
+                background-color: ${({ hoverColor, primary }) => hoverColor ? hoverColor : primary ? theme.primaryColorP1 : theme.bgColorN2};
+                color: ${({ hoverColor, primary }) => hoverColor ? theme.bgColorN1 : primary ? theme.bgColorP1 : theme.textColorN2};
+            }
+        `}
+        transition: opacity 300ms ease, background-color 300ms ease, color 300ms ease;
 
         position: relative;
         text-decoration: none;

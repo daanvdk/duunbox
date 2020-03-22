@@ -8,7 +8,7 @@ const StyledInput = styled.input`
     display: block;
     width: 100%;
 
-    background-color: ${theme.bgColorP1};
+    background-color: ${theme.bgColorN1};
     color: ${theme.textColorP1};
     border: unset;
     font-size: 1rem;
@@ -18,7 +18,7 @@ const StyledInput = styled.input`
     border-radius: 0.5rem;
     &:active, &:focus {
         outline: unset;
-        background-color: ${theme.bgColorP2};
+        background-color: ${theme.bgColorN2};
         color: ${theme.textColorP2};
     }
     transition: background-color 300ms ease, color 300ms ease;
@@ -57,6 +57,7 @@ export default function Input({
     value = '',
     onChange = () => {},
     copy = false,
+    innerRef,
     ...props
 }) {
     return (
@@ -65,6 +66,7 @@ export default function Input({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 buttons={(copy ? 1 : 0) + (onDelete ? 1 : 0)}
+                ref={innerRef}
                 {...props}
             />
             <IconButton

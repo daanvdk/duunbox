@@ -13,6 +13,7 @@ const StyledIcon = styled(({ color, ...props }) => <i {...props} />)`
     ${({ color }) => color ? `
         color: ${color};
     ` : ``}
+    font-size: ${({ size = 1 }) => size}em;
 `;
 
 export default function Icon({
