@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
-import { Form, Icon, Group, Input, Button, RadioButtons, Modal } from '../../../component';
-import { useToasts } from '../../../helpers';
+import { Form, Icon, Group, Button, RadioButtons } from '../../../component';
+import { useTranslations, useToasts } from '../../../helpers';
 import api from '../../../api';
 import theme from '../../../theme';
 import NameChangeModal from './NameChangeModal'; 
@@ -24,15 +24,15 @@ const UnderTitle = styled.h2`
     font-weight: normal;
     font-style: italic;
     color: ${theme.textColorN2};
-    margin: 0 0 2rem;
+    margin: 0 0 1.5rem;
 `;
 
 const Code = styled.div`
     color: ${theme.primaryColor};
     text-align: center;
     font-size: 2.25em;
+    margin: -0.1em 0;
     font-weight: bold;
-    margin: -1rem 0 1rem;
 `;
 
 const PlayerContainer = styled.div`
@@ -83,27 +83,10 @@ const Player = styled.div`
     }
 `;
 
-const ShareIcon = styled(Icon)`
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 1.25rem;
-    cursor: pointer;
-    color: ${theme.textColor};
-    &:hover {
-        color: ${theme.textColorP1};
-    }
-    transition: color 300ms ease;
-`;
-
-const GAME_OPTIONS = [
-    {
-        value: 'bussen',
-        content: 'Bussen',
-    },
-];
+const GAMES = ['bussen'];
 
 export default function GameLobbyScreen({ game, setGame }) {
+    const t = useTranslations();
     const [nameChange, setNameChange] = useState(false);
     const createToast = useToasts();
     const self = useMemo(() => game.players.find(({ self }) => self), [game]);
@@ -118,7 +101,7 @@ export default function GameLobbyScreen({ game, setGame }) {
             api.put(`game/${game.code}/`, { started: true })
             .catch((error) => {
                 if (error.response) {
-                    createToast(error.response.data.message, { warning: true });
+                    createToast(t('game.lobby.error.couldNotStart'), { error: true });
                 }
             })
         );
@@ -133,27 +116,33 @@ export default function GameLobbyScreen({ game, setGame }) {
                         top: '-0.075em',
                         marginRight: '0.375em',
                     }} />
-                    Düünbox
+                    {t('main.title')}
                 </Title>
-                <UnderTitle>Niet van Jack, maar van Düün.</UnderTitle>
-                <Code>{game.code}</Code>
+                <UnderTitle>{t('main.underTitle')}</UnderTitle>
                 <Form onSubmit={onSubmit}>
-                    <Group label="Spel">
-                        <RadioButtons
+                    <Group label={t('game.lobby.code.label')}>
+                        <Code>{game.code}</Code>
+                    </Group>
+                    <Group label={t('game.lobby.game.label')}>
+                        <RadioButtons vertical
                             value={game.game}
-                            onChange={(value) => (
+                            onChange={(value) => {
+                                if (!self || !self.admin) {
+                                    return;
+                                }
+
                                 api.put(`game/${game.code}/`, { game: value })
-                                .then(({ data }) => setGame(data))
-                                .catch((error) => (
-                                    error.response && error.response.status === 400
-                                    ? createToast('invalid_game', { warning: true })
-                                    : createToast('unknown_error', { error: true })
-                                ))
-                            )}
-                            options={GAME_OPTIONS}
+                                    .then(({ data }) => setGame(data))
+                                    .catch((error) => (
+                                        error.response && error.response.status === 400
+                                        ? createToast(t('game.lobby.error.invalidGame'), { warning: true })
+                                        : createToast(t('error.unknown'), { error: true })
+                                    ));
+                            }}
+                            options={GAMES.map((value) => ({ value, content: t(`game.lobby.game.value.${value}`) }))}
                         />
                     </Group>
-                    <Group label="Spelers">
+                    <Group label={t('game.lobby.players.label')}>
                         <PlayerContainer>
                             {game.players.map(({ name, admin, self }, i) => (
                                 <Player key={i} self={self}>
@@ -168,7 +157,7 @@ export default function GameLobbyScreen({ game, setGame }) {
                         icon="play"
                         disabled={!self || !self.admin || !game.game}
                     >
-                        Spel Starten
+                        {t('game.lobby.startButton')}
                     </Button>
                 </Form>
             </Container>

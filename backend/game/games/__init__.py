@@ -16,7 +16,8 @@ The module can also optionally provide the following function:
     for sending to the players given the current state.
     If this function is not provided the state will not be filtered.
 """
+from . import bussen
 
-# Mapping from name to module
 GAMES = {
+    'bussen': bussen,
 }

@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('code', models.TextField(primary_key=True, serialize=False)),
                 ('game', models.TextField(blank=True, choices=[], null=True)),
-                ('started', models.BooleanField()),
+                ('started', models.BooleanField(default=False)),
                 ('state', django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),

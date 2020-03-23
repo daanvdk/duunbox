@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import { ToastContext } from '../component/Toasts';
 import { DateTime } from 'luxon';
 
@@ -8,14 +8,13 @@ function getNextId() {
     return nextId++;
 }
 
-export default function useToasts(defaultOptions = {}) {
+export default function useToasts() {
     const [, setToasts] = useContext(ToastContext);
-    return (message, options = {}) => setToasts((toasts) => [...toasts, {
-        ...defaultOptions,
+    return useCallback((message, options = {}) => setToasts((toasts) => [...toasts, {
         ...options,
         id: getNextId(),
         message,
         createdAt: DateTime.local(),
         state: 'new',
-    }]);
+    }]), [setToasts]);
 }

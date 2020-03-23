@@ -1,26 +1,29 @@
+import random
+
+
 SUITS = ['spades', 'diamonds', 'clubs', 'hearts']
 RANKS = [
-    'ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen',
-    'king',
+    '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    'jack', 'queen', 'king', 'ace',
 ]
 
 
 def get_deck(*, jokers=False):
-    deck = list(zip(SUITS, RANKS))
+    deck = [{'suit': suit, 'rank': rank} for suit in SUITS for rank in RANKS]
     if jokers:
-        deck.extend([('joker', 'red'), ('joker', 'black')])
-    deck.shuffle()
+        deck.extend([
+            {'suit': 'joker', 'rank': 'red'},
+            {'suit': 'joker', 'rank': 'black'},
+        ])
+    random.shuffle(deck)
     return deck
 
 
 def compare(lhs, rhs, *, suit=True):
-    lsuit, lrank = lhs
-    rsuit, rrank = rhs
-
-    lsuit = SUITS.index(lsuit)
-    lrank = RANKS.index(lrank)
-    rsuit = SUITS.index(rsuit)
-    rrank = RANKS.index(rrank)
+    lsuit = SUITS.index(lhs['suit'])
+    lrank = RANKS.index(lhs['rank'])
+    rsuit = SUITS.index(rhs['suit'])
+    rrank = RANKS.index(rhs['rank'])
 
     if lrank < rrank:
         return -1

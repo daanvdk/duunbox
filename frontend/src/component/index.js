@@ -4,6 +4,7 @@ export { default as Group } from './Group';
 export { default as HSplit } from './HSplit';
 export { default as Icon } from './Icon';
 export { default as Input } from './Input';
+export { default as Language } from './Language';
 export { default as Loader } from './Loader';
 export { default as Modal } from './Modal';
 export { default as RadioButtons } from './RadioButtons';

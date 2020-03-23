@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Form, Group, Input, Button } from '../../../component';
-import { useToasts, onEnter } from '../../../helpers';
+import { useTranslations, useToasts, onEnter } from '../../../helpers';
 import api from '../../../api';
 
 export default function ChangeNameModal({ code, defaultName, onClose, ...props }) {
+    const t = useTranslations();
     const [name, setName] = useState(defaultName);
     const createToast = useToasts();
 
@@ -21,26 +22,27 @@ export default function ChangeNameModal({ code, defaultName, onClose, ...props }
             })
             .catch((error) => {
                 if (error.response && error.response.data) {
-                    createToast(error.response.data.message, {
-                        error: error.response.status !== 400,
-                        warning: error.response.status === 400,
-                    });
+                    if (error.response.status === 400) {
+                        createToast(t('game.create.error.nameTaken'), { warning: true });
+                    } else {
+                        createToast(t('error.unknown'), { error: true });
+                    }
                 }
             })
         );
     }
 
     return (
-        <Modal title="Naam Aanpassen" onClose={onClose} {...props}>
+        <Modal title={t('game.lobby.changeName.title')} onClose={onClose} {...props}>
             <Form onSubmit={onSubmit}>
-                <Group label="Nieuwe Naam">
+                <Group label={t('game.lobby.changeName.name.label')}>
                     <Input autoFocus
                         value={name}
                         onChange={setName}
                         onKeyDown={onEnter(onSubmit)}
                     />
                     <Button primary icon="pen" disabled={name === ''}>
-                        Naam Aanpassen
+                        {t('game.lobby.changeName.changeButton')}
                     </Button>
                 </Group>
             </Form>

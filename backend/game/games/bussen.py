@@ -14,95 +14,131 @@ def initial_state(players):
 
 
 def update_state(state, player, move, notify):
-    if 'bus' in state:
-        pass  # Bus logica
+    return ValueError('invalid_move')
 
-    elif 'pyramid' in state:
-        pass  # Pyramide logica
 
-    else:
-        _, turn = sorted(
-            (len(hand), name)
-            for name, hand in state['hands'].items()
-        )[0]
+def get_form(state, player):
+    # Cards part
+    _, turn = sorted(
+        (len(hand), name)
+        for name, hand in state['hands'].items()
+    )[0]
 
-        if player != turn:
-            raise ValueError('not_your_turn')
+    if player != turn:
+        return None
 
-        hand = state['hands'][player]
+    hand = state['hands'][player]
 
-        # Rood of zwart
-        if len(hand) == 0:
-            if move == 'rood':
-                def predicate(card):
-                    return card[0] in {'diamonds', 'hearts'}
-            elif move == 'zwart':
-                def predicate(card):
-                    return card[0] in {'spades', 'clubs'}
-            else:
-                raise ValueError('invalid_move')
-        # Hoger of lager
-        elif len(hand) == 1:
-            if move == 'hoger':
-                def predicate(card):
-                    return compare(card, hand[0], suit=False) > 0
-            elif move == 'paal':
-                def predicate(card):
-                    return compare(card, hand[0], suit=False) == 0
-            elif move == 'lager':
-                def predicate(card):
-                    return compare(card, hand[0], suit=False) < 0
-            else:
-                raise ValueError('invalid_move')
-        # Binnen of buiten
-        elif len(hand) == 2:
+    def card_action(check):
+        def action(notify, answer):
+            deck = list(state['deck'])
+            card = deck.pop()
+
+            if not check(card, answer):
+                notify(
+                    'bussen.drink',
+                    {'player': player, 'count': 1},
+                    player=player,
+                )
+
+            return {
+                **state,
+                'deck': deck,
+                'hands': {
+                    **state['hands'],
+                    player: [*hand, card],
+                },
+            }
+        return action
+
+    if len(hand) == 0:
+        # Color
+        @card_action
+        def action(card, answer):
+            if answer == 'color.value.red':
+                return card['suit'] in {'diamonds', 'hearts'}
+            elif answer == 'color.value.black':
+                return card['suit'] in {'spades', 'clubs'}
+
+        return action, [{
+            'type': 'choice',
+            'label': 'color.label',
+            'choices': [
+                'color.value.red',
+                'color.value.black',
+            ],
+        }]
+
+    elif len(hand) == 1:
+        # Higher / Lower
+        @card_action
+        def action(card, answer):
+            if answer == 'higherLower.value.lower':
+                return compare(card, hand[0], suit=False) < 0
+            elif answer == 'higherLower.value.equal':
+                return compare(card, hand[0], suit=False) == 0
+            elif answer == 'higherLower.value.higher':
+                return compare(card, hand[0], suit=False) > 0
+
+        return action, [{
+            'type': 'choice',
+            'label': 'higherLower.label',
+            'choices': [
+                'higherLower.value.higher',
+                'higherLower.value.equal',
+                'higherLower.value.lower',
+            ],
+        }]
+
+    elif len(hand) == 2:
+        # Inside / Outside
+        @card_action
+        def action(card, answer):
             if compare(hand[0], hand[1]) > 0:
-                highest = hand[0]
-                lowest = hand[1]
+                highest, lowest = hand
             else:
                 lowest, highest = hand
 
-            if move == 'binnen':
-                def predicate(card):
-                    return (
-                        compare(card, lowest, suit=False) > 0 and
-                        compare(card, highest, suit=False) < 0
-                    )
-            elif move == 'paal':
-                def predicate(card):
-                    return (
-                        compare(card, lowest, suit=False) == 0 or
-                        compare(card, highest, suit=False) == 0
-                    )
-            elif move == 'buiten':
-                def predicate(card):
-                    return (
-                        compare(card, lowest, suit=False) < 0 or
-                        compare(card, highest, suit=False) > 0
-                    )
-            else:
-                raise ValueError('invalid_move')
-        # Soort
-        elif len(hand) == 3:
-            if move in SUITS:
-                def predicate(card):
-                    return card[0] == move
-            else:
-                raise ValueError('invalid_move')
-        # Volle hand
-        else:
-            raise ValueError('full_hand')
+            if answer == 'insideOutside.value.inside':
+                return (
+                    compare(card, lowest, suit=False) > 0 and
+                    compare(card, highest, suit=False) < 0
+                )
+            elif answer == 'insideOutside.value.equal':
+                return (
+                    compare(card, lowest, suit=False) == 0 or
+                    compare(card, highest, suit=False) == 0
+                )
+            elif answer == 'insideOutside.value.outside':
+                return (
+                    compare(card, lowest, suit=False) < 0 or
+                    compare(card, highest, suit=False) > 0
+                )
 
-        deck = state['deck'].copy()
-        card = deck.pop()
+        return action, [{
+            'type': 'choice',
+            'label': 'insideOutside.label',
+            'choices': [
+                'insideOutside.value.inside',
+                'insideOutside.value.equal',
+                'insideOutside.value.outside',
+            ],
+        }]
 
-        if not predicate(card):
-            notify('drink', {'sips': 1}, player=player)
+    elif len(hand) == 3:
+        # Inside / Outside
+        @card_action
+        def action(card, answer):
+            return f'suit.value.{card["suit"]}' == answer
 
-        return {
-            'deck': deck,
-            'hands': {**state['hands'], player: [*hand, card]},
-        }
+        return action, [{
+            'type': 'choice',
+            'label': 'suit.label',
+            'choices': [
+                f'suit.value.{suit}'
+                for suit in SUITS
+            ],
+        }]
 
 
 def filter_state(state, player):

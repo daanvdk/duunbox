@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Form, Icon, Group, Input, HSplit, Button } from '../../component';
 import api from '../../api';
 import theme from '../../theme';
-import { useToasts, onEnter } from '../../helpers';
+import { useTranslations, useToasts, onEnter } from '../../helpers';
 
 const Title = styled.h1`
     font-size: 1.5rem;
@@ -18,10 +18,11 @@ const UnderTitle = styled.h2`
     font-weight: normal;
     font-style: italic;
     color: ${theme.textColorN2};
-    margin: 0 0 2rem;
+    margin: 0 0 1.5rem;
 `;
 
 export default function GameCreateScreen({ defaultCode, afterSubmit }) {
+    const t = useTranslations();
     const [name, setName] = useState('');
     const [code, setCode] = useState(defaultCode || '');
     const createToast = useToasts();
@@ -56,10 +57,13 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
             })
             .catch((error) => {
                 if (error.response && error.response.data) {
-                    createToast(error.response.data.message, {
-                        error: error.response.status !== 400,
-                        warning: error.response.status === 400,
-                    });
+                    if (error.response.status === 400) {
+                        createToast(t('game.create.error.nameTaken'), { warning: true });
+                    } else if (error.response.status === 404) {
+                        createToast(t('game.create.error.gameNotFound'), { warning: true });
+                    } else {
+                        createToast(t('error.unknown'), { error: true });
+                    }
                 }
             })
         );
@@ -76,11 +80,11 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
                     top: '-0.075em',
                     marginRight: '0.375em',
                 }} />
-                Düünbox
+                {t('main.title')}
             </Title>
-            <UnderTitle>Niet van Jack, maar van Düün.</UnderTitle>
+            <UnderTitle>{t('main.underTitle')}</UnderTitle>
             <Form onSubmit={onSubmit}>
-                <Group label="Naam" ref={nameRef}>
+                <Group label={t('game.create.name.label')} ref={nameRef}>
                     <Input autoFocus
                         value={name}
                         onChange={setName}
@@ -96,7 +100,7 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
                     />
                 </Group>
                 {!defaultCode && (
-                    <Group label="Code">
+                    <Group label={t('game.create.code.label')}>
                         <Input
                             value={code}
                             onChange={setCode}
@@ -111,7 +115,7 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
                         icon={code === '' ? 'plus' : 'sign-in-alt'}
                         disabled={name === ''}
                     >
-                        {code === '' ? 'Nieuw Spel' : 'Deelnemen'}
+                        {code === '' ? t('game.create.createButton') : t('game.create.joinButton')}
                     </Button>
                 </HSplit>
             </Form>

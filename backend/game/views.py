@@ -8,8 +8,8 @@ import channels.layers
 from asgiref.sync import async_to_sync
 
 from is_valid import (
-    is_str, is_something, is_in, is_subdict_where, is_bool, is_pre,
-    is_not_blank,
+    is_str, is_in, is_subdict_where, is_bool, is_pre, is_not_blank,
+    is_superdict_where, is_dict_where,
 )
 
 from utils.views import allow_methods, validate_body
@@ -67,15 +67,22 @@ def serialize_game(player):
 
     if player.game.started:
         state = player.game.state
+
         if hasattr(GAMES[player.game.game], 'filter_state'):
             state = GAMES[player.game.game].filter_state(state, player.name)
+
         data['state'] = state
+
+        if hasattr(GAMES[player.game.game], 'get_form'):
+            form = GAMES[player.game.game].get_form(state, player.name)
+            if form is not None:
+                action, fields = form
+                data['form'] = fields
 
     return data
 
 
 def group_send(group, event):
-    print('SEND', group, event)
     channel_layer = channels.layers.get_channel_layer()
     return async_to_sync(channel_layer.group_send)(group, event)
 
@@ -156,6 +163,9 @@ def game_update_view(request, data, player):
         player.game.game = data['game']
     if 'started' in data:
         player.game.started = data['started']
+        player.game.state = GAMES[player.game.game].initial_state(
+            [player.name for player in player.game.players.all()]
+        )
 
     if player.game.started and player.game.game is None:
         return JsonResponse(
@@ -240,7 +250,9 @@ def game_join_view(request, data, code):
 
 @allow_methods('POST')
 @with_player
-@validate_body(is_something)
+@validate_body(is_superdict_where({
+    'type': is_str,
+}))
 def game_move_view(request, data, player):
     if not player.game.started:
         return JsonResponse(
@@ -254,18 +266,54 @@ def game_move_view(request, data, player):
     def notify(*args, **kwargs):
         send_game_message(player.game, *args, **kwargs)
 
-    try:
-        player.game.state = GAMES[player.game.game].update_state(
-            player.game.state, player.name, data, notify,
-        )
-    except ValueError as e:
-        return JsonResponse(
-            code=400,
-            data={
-                'code': 'BadRequest',
-                'message': str(e),
-            },
-        )
+    game = GAMES[player.game.game]
+
+    if data['type'] == 'form' and hasattr(game, 'get_form'):
+        form = game.get_form(player.game.state, player.name)
+
+        if form is None:
+            return JsonResponse(
+                code=400,
+                data={
+                    'code': 'BadRequest',
+                    'message': 'no_form',
+                },
+            )
+
+        action, fields = form
+        field_preds = []
+        for field in fields:
+            if field['type'] == 'choice':
+                field_preds.append(is_in(field['choices']))
+
+        data_pred = is_dict_where(type='form', fields=field_preds)
+        valid = data_pred.explain(data)
+        if not valid:
+            return JsonResponse(
+                status=400,
+                data={
+                    'code': 'BadRequest',
+                    'message': 'Request body is not valid.',
+                    'details': valid.dict(),
+                },
+            )
+
+        player.game.state = action(notify, *data['fields'])
+
+    else:
+        try:
+            player.game.state = game.update_state(
+                player.game.state, player.name, data, notify,
+            )
+        except ValueError as e:
+            return JsonResponse(
+                code=400,
+                data={
+                    'code': 'BadRequest',
+                    'message': str(e),
+                },
+            )
+
     player.game.save()
 
     send_game_update(player.game)

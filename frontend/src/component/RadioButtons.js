@@ -14,19 +14,26 @@ const Container = styled.div`
     border-radius: 0.75rem;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: ${({ vertical }) => vertical ? 'column' : 'row'};
     position: relative;
 `;
 
 const Highlight = styled.div`
     position: absolute;
-    left: 0.25rem;
-    top: calc(${({ active, options }) => 100 * active / options}% + 0.25rem);
-    width: calc(${({ options }) => 100 / options}% - 0.5rem);
-    height: calc(100% - 0.5rem);
+    ${({ vertical, active, options }) => vertical ? `
+        left: 0.25rem;
+        top: calc(${100 * active / options}% + 0.25rem);
+        width: calc(100% - 0.5rem);
+        height: calc(${100 / options}% - 0.5rem);
+    ` : `
+        left: calc(${100 * active / options}% + 0.25rem);
+        top: 0.25rem;
+        width: calc(${100 / options}% - 0.5rem);
+        height: calc(100% - 0.5rem);
+    `}
     background-color: ${theme.primaryColor};
     border-radius: 0.5rem;
-    transition: left 300ms ease;
+    transition: left 300ms ease, top 300ms ease;
 `;
 
 const Button = styled.button`
@@ -39,19 +46,19 @@ const Button = styled.button`
     border: none;
     outline: none;
     background-color: transparent;
-    color: ${({ active }) => active ? theme.textColorP1 : theme.textColorN2};
+    color: ${({ active }) => active ? theme.bgColor : theme.textColorN2};
     font-size: 1rem;
     font-weight: bold;
     text-align: center;
     transition: color 300ms ease;
 `;
 
-export default function RadioButtons({ value, onChange, options }) {
+export default function RadioButtons({ vertical, value, onChange, options }) {
     const active = options.findIndex((option) => option.value === value);
     return (
-        <Container>
+        <Container vertical={vertical}>
             {active !== -1 && (
-                <Highlight active={active} options={options.length} />
+                <Highlight vertical={vertical} active={active} options={options.length} />
             )}
             {options.map(({ value, content, icon }, i) => {
                 if (typeof icon === 'string') {
@@ -62,7 +69,10 @@ export default function RadioButtons({ value, onChange, options }) {
                         key={i}
                         active={i === active}
                         icon={!!icon}
-                        onClick={() => onChange(value)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            onChange(value);
+                        }}
                     >
                         {icon && <ButtonIcon {...icon} />}
                         {content}
