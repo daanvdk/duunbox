@@ -31,7 +31,7 @@ const components = {
         border-radius: 0.5rem;
         ${({ disabled }) => disabled ? css`
             cursor: not-allowed;
-            opacity: 0.8;
+            opacity: 0.5;
         ` : css`
             cursor: pointer;
             &:hover, &:active, &:focus {

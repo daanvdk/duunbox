@@ -27,7 +27,7 @@ def update_state(state, player, move, notify):
         )[0]
 
         if player != turn:
-            raise ValueError('Je bent niet aan de beurt.')
+            raise ValueError('not_your_turn')
 
         hand = state['hands'][player]
 
@@ -40,7 +40,7 @@ def update_state(state, player, move, notify):
                 def predicate(card):
                     return card[0] in {'spades', 'clubs'}
             else:
-                raise ValueError('Ongeldige zet.')
+                raise ValueError('invalid_move')
         # Hoger of lager
         elif len(hand) == 1:
             if move == 'hoger':
@@ -53,7 +53,7 @@ def update_state(state, player, move, notify):
                 def predicate(card):
                     return compare(card, hand[0], suit=False) < 0
             else:
-                raise ValueError('Ongeldige zet.')
+                raise ValueError('invalid_move')
         # Binnen of buiten
         elif len(hand) == 2:
             if compare(hand[0], hand[1]) > 0:
@@ -81,23 +81,23 @@ def update_state(state, player, move, notify):
                         compare(card, highest, suit=False) > 0
                     )
             else:
-                raise ValueError('Ongeldige zet.')
+                raise ValueError('invalid_move')
         # Soort
         elif len(hand) == 3:
             if move in SUITS:
                 def predicate(card):
                     return card[0] == move
             else:
-                raise ValueError('Ongeldige zet.')
+                raise ValueError('invalid_move')
         # Volle hand
         else:
-            raise ValueError('Volle hand.')
+            raise ValueError('full_hand')
 
         deck = state['deck'].copy()
         card = deck.pop()
 
         if not predicate(card):
-            notify(f'Drinken {player}!', player)
+            notify('drink', {'sips': 1}, player=player)
 
         return {
             'deck': deck,

@@ -1,27 +1,33 @@
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from channels.generic.websocket import JsonWebsocketConsumer
+from asgiref.sync import async_to_sync
 
 
-class GameConsumer(AsyncJsonWebsocketConsumer):
+class GameConsumer(JsonWebsocketConsumer):
 
-    async def connect(self):
+    def connect(self):
         code = self.scope['url_route']['kwargs']['code']
         try:
             player = self.scope['session'][f'game_{code}']
         except KeyError:
-            await self.close()
+            self.close()
+            return
 
-        self.groups = [f'game_{code}', f'player_{player}']
-        for group in self.groups:
-            await self.channel_layer.group_add(group, self.channel_name)
+        self.game_group = f'game_{code}'
+        self.player_group = f'player_{player}'
 
-        await self.accept()
+        group_add = async_to_sync(self.channel_layer.group_add)
+        group_add(self.game_group, self.channel_name)
+        group_add(self.player_group, self.channel_name)
 
-    async def disconnect(self, close_code):
-        for group in self.groups:
-            await self.channel_layer.group_discard(group, self.channel_name)
+        self.accept()
 
-    async def game_update(self, event):
-        await self.send_json(event)
+    def disconnect(self, close_code):
+        group_discard = async_to_sync(self.channel_layer.group_discard)
+        group_discard(self.game_group, self.channel_name)
+        group_discard(self.player_group, self.channel_name)
 
-    async def game_message(self, event):
-        await self.send_json(event)
+    def game_update(self, event):
+        self.send_json(event)
+
+    def game_message(self, event):
+        self.send_json(event)

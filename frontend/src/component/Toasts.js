@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import useInterval from '../helpers/useInterval';
@@ -11,7 +11,7 @@ const ToastContainer = styled.div`
     left: 0;
     right: 0;
     padding: 0 0.5rem;
-    background-color: 
+    z-index: 200;
 `;
 
 const Toast = styled.div`

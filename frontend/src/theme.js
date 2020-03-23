@@ -1,6 +1,6 @@
 export default {
-    bgColorN2: '#E0E6EC',
-    bgColorN1: '#F0F4F8',
+    bgColorN2: '#D0D6DC',
+    bgColorN1: '#E8ECF0',
     bgColor: '#FFF',
     bgColorP1: '#FFF',
     bgColorP2: '#FFF', 

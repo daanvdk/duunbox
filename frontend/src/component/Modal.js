@@ -13,7 +13,7 @@ const Wrapper = styled.div`
     z-index: 100;
 
     ${({ open }) => open ? `
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.25);
     ` : `
         pointer-events: none;   
     `}

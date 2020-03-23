@@ -14,13 +14,14 @@ const Container = styled.div`
     border-radius: 0.75rem;
 
     display: flex;
+    flex-direction: column;
     position: relative;
 `;
 
 const Highlight = styled.div`
     position: absolute;
-    left: calc(${({ active, options }) => 100 * active / options}% + 0.25rem);
-    top: 0.25rem;
+    left: 0.25rem;
+    top: calc(${({ active, options }) => 100 * active / options}% + 0.25rem);
     width: calc(${({ options }) => 100 / options}% - 0.5rem);
     height: calc(100% - 0.5rem);
     background-color: ${theme.primaryColor};
@@ -34,7 +35,7 @@ const Button = styled.button`
 
     cursor: pointer;
     margin: 0.25rem;
-    padding: 0.5rem 0.5rem 0.5rem ${({ icon }) => icon ? 2 : 0.5}rem;
+    padding: 0.5rem ${({ icon }) => icon ? 2 : 0.5}rem;
     border: none;
     outline: none;
     background-color: transparent;

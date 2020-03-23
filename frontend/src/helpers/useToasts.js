@@ -9,7 +9,7 @@ function getNextId() {
 }
 
 export default function useToasts(defaultOptions = {}) {
-    const [toasts, setToasts] = useContext(ToastContext);
+    const [, setToasts] = useContext(ToastContext);
     return (message, options = {}) => setToasts((toasts) => [...toasts, {
         ...defaultOptions,
         ...options,

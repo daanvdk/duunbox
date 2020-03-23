@@ -4,15 +4,7 @@ import styled from 'styled-components';
 import { Form, Icon, Group, Input, HSplit, Button } from '../../component';
 import api from '../../api';
 import theme from '../../theme';
-import { useToasts } from '../../helpers';
-
-function onEnter(callback) {
-    return function (e) {
-        if (e.key === 'Enter') {
-            return callback(e);
-        }
-    }
-}
+import { useToasts, onEnter } from '../../helpers';
 
 const Title = styled.h1`
     font-size: 1.5rem;
@@ -55,12 +47,13 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
             return;
         }
 
-        localStorage.setItem('name', name);
-
         // Create game
         const promise = (
             api.post(code === '' ? 'game/' : `game/${code}/join/`, { name })
-            .then(({ data: { code } }) => history.push(`/${code}`))
+            .then(({ data: { code } }) => {
+                localStorage.setItem('name', name);
+                history.push(`/${code}`);
+            })
             .catch((error) => {
                 if (error.response && error.response.data) {
                     createToast(error.response.data.message, {

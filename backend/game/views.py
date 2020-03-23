@@ -74,23 +74,25 @@ def serialize_game(player):
     return data
 
 
-def send_group(group, event):
+def group_send(group, event):
+    print('SEND', group, event)
     channel_layer = channels.layers.get_channel_layer()
     return async_to_sync(channel_layer.group_send)(group, event)
 
 
 def send_game_update(game):
     for player in game.players.all():
-        send_group(f'player_{player.pk}', {
-            'type': 'game_update',
+        group_send(f'player_{player.pk}', {
+            'type': 'game.update',
             'game': serialize_game(player),
         })
 
 
-def send_game_message(game, message, player=None):
-    send_group(f'game_{game.code}', {
-        'type': 'game_message',
-        'message': message,
+def send_game_message(game, key, params, *, player=None):
+    group_send(f'game_{game.code}', {
+        'type': 'game.message',
+        'key': key,
+        'params': params,
         'player': player,
     })
 
@@ -210,10 +212,18 @@ def game_join_view(request, data, code):
         except KeyError:
             player = Player.objects.create(game=game, name=data['name'])
             request.session[f'game_{code}'] = player.pk
+            send_game_message(player.game, 'player_joined', {
+                'name': player.name,
+            })
         else:
             player = Player.objects.get(pk=player_pk)
+            old_name = player.name
             player.name = data['name']
             player.save()
+            send_game_message(player.game, 'name_change', {
+                'old_name': old_name,
+                'new_name': player.name,
+            })
     except IntegrityError:
         return JsonResponse(
             status=400,
@@ -222,6 +232,8 @@ def game_join_view(request, data, code):
                 'message': 'Name is already in use.',
             },
         )
+
+    send_game_update(player.game)
 
     return JsonResponse(serialize_game(player))
 
