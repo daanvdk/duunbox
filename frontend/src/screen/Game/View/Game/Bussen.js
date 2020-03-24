@@ -37,6 +37,7 @@ const CardContainer = styled.div`
     padding: 0.5em;
     display: flex;
     > img {
+        width: calc(25% - 1em);
         margin: 0.5em;
     }
 `;
