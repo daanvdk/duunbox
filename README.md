@@ -1,6 +1,6 @@
-# Cumbiate
-This is an application that provides an interface for playing the card game
-Cumbia.
+# Düünbox
+This is an application that provides an interface for playing some simple games
+online.
 
 ## Development
 Running the application locally requires you to have Docker Compose installed.
