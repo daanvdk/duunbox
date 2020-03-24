@@ -1,16 +1,31 @@
 from utils.cards import get_deck, compare, SUITS
 
 
+def get_turn(state):
+    return next(
+        (name for _, name in sorted(
+            (len(hand), name)
+            for name, hand in state['hands'].items()
+            if len(hand) < 4
+        )),
+        None,
+    )
+
+
 def initial_state(players):
     deck = []
     min_cards = 4 * len(players) + (5 + 4 + 3 + 2 + 1)
     while len(deck) < min_cards:
         deck.extend(get_deck())
 
-    return {
+    state = {
+        'stage': 'cards',
         'deck': deck,
         'hands': {player: [] for player in players},
     }
+    state['turn'] = get_turn(state)
+
+    return state
 
 
 def update_state(state, player, move, notify):
@@ -19,12 +34,7 @@ def update_state(state, player, move, notify):
 
 def get_form(state, player):
     # Cards part
-    _, turn = sorted(
-        (len(hand), name)
-        for name, hand in state['hands'].items()
-    )[0]
-
-    if player != turn:
+    if player != state['turn']:
         return None
 
     hand = state['hands'][player]
@@ -41,7 +51,7 @@ def get_form(state, player):
                     player=player,
                 )
 
-            return {
+            new_state = {
                 **state,
                 'deck': deck,
                 'hands': {
@@ -49,6 +59,9 @@ def get_form(state, player):
                     player: [*hand, card],
                 },
             }
+            new_state['turn'] = get_turn(new_state)
+
+            return new_state
         return action
 
     if len(hand) == 0:
@@ -144,4 +157,5 @@ def get_form(state, player):
 def filter_state(state, player):
     return {
         'hands': state['hands'],
+        'turn': state['turn'],
     }

@@ -7,6 +7,7 @@ import GameLobby from './View/Lobby';
 import GameForm from './View/GameForm';
 import styled from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
+import Bussen from './View/Game/Bussen';
 
 const Container = styled.div`
     height: calc(100% + 2em);
@@ -121,7 +122,11 @@ export default function GameViewScreen({ code }) {
         <Container>
             <GameContainer>
                 <Scrollbars>
-                    <pre>{jsonFormat(game)}</pre>
+                    {game.game === 'bussen' ? (
+                        <Bussen game={game} />
+                    ) : (
+                        <pre>{jsonFormat(game)}</pre>
+                    )}
                 </Scrollbars>
             </GameContainer>
             {game.form && (
