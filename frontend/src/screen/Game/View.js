@@ -110,7 +110,7 @@ export default function GameViewScreen({ code }) {
         if (error.response.status === 403) {
             return <GameCreateView defaultCode={code} afterSubmit={refetch} />;
         } else {
-            return error.response.data.message;
+            return t('error.unknown');
         }
     }
 
