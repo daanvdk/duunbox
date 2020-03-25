@@ -38,47 +38,47 @@ export default {
             submitButton: 'Invoeren',
         },
         message: {
-            name_change: '{{old_name}} heeft zijn/haar naam aangepast naar {{new_name}}.',
-            player_joined: '{{name}} is bij het spel gekomen.',
-            bussen: {
-                drink: '{{player}}: {{count}} slok drinken!',
-                drink_plural: '{{player}}: {{count}} slokken drinken!',
-            },
+            nameChange: '{{oldName}} heeft zijn/haar naam aangepast naar {{newName}}.',
+            playerJoined: '{{name}} is bij het spel gekomen.',
         },
         bussen: {
-            form: {
-                color: {
-                    label: 'Rood of zwart?',
-                    value: {
-                        red: 'Rood',
-                        black: 'Zwart',
-                    },
+            color: {
+                label: 'Rood of zwart?',
+                value: {
+                    red: 'Rood',
+                    black: 'Zwart',
                 },
-                higherLower: {
-                    label: 'Hoger of lager?',
-                    value: {
-                        higher: 'Hoger',
-                        equal: 'Paal',
-                        lower: 'Lager',
-                    },
+            },
+            higherLower: {
+                label: 'Hoger of lager?',
+                value: {
+                    higher: 'Hoger',
+                    equal: 'Paal',
+                    lower: 'Lager',
                 },
-                insideOutside: {
-                    label: 'Binnen of buiten?',
-                    value: {
-                        inside: 'Binnen',
-                        equal: 'Paal',
-                        outside: 'Buiten',
-                    },
+            },
+            insideOutside: {
+                label: 'Binnen of buiten?',
+                value: {
+                    inside: 'Binnen',
+                    equal: 'Paal',
+                    outside: 'Buiten',
                 },
-                suit: {
-                    label: 'Kleur?',
-                    value: {
-                        spades: 'Schoppen',
-                        diamonds: 'Ruiten',
-                        clubs: 'Klaveren',
-                        hearts: 'Harten',
-                    },
+            },
+            suit: {
+                label: 'Kleur?',
+                value: {
+                    spades: 'Schoppen',
+                    diamonds: 'Ruiten',
+                    clubs: 'Klaveren',
+                    hearts: 'Harten',
                 },
+            },
+            message: {
+                playerAnswer: '{{player}} zegt {{answer!trans!lower}}.',
+                actualAnswer: 'Het is {{answer!trans!lower}}!',
+                drink: '{{players}}: Drink {{count}} slok!',
+                drink_plural: '{{players}}: Drink {{count}} slokken!',
             },
         },
     },

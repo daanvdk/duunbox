@@ -84,16 +84,29 @@ export default function GameViewScreen({ code }) {
             socketRef.current = new WebSocket(
                 `${PROTOCOL_MAP[window.location.protocol]}//${window.location.host}/api/game/${gameCode}/`
             );
+
+            function handleMessages({ messages, interval, namespace }) {
+                const [{ key, params = {}, players = [] }, ...tail] = messages;
+
+                createToast(t(key, params, namespace), { highlight: players.includes(self) });
+
+                if (tail.length > 0) {
+                    setTimeout(() => handleMessages({
+                        messages: tail,
+                        interval,
+                        namespace,
+                    }), interval);
+                }
+            }
+
             socketRef.current.onmessage = (message) => {
                 message = JSON.parse(message.data);
                 switch (message.type) {
                     case 'game.update':
                         setGame(message.game);
                         break;
-                    case 'game.message':
-                        createToast(t(`game.message.${message.key}`, message.params), {
-                            highlight: message.player === self,
-                        });
+                    case 'game.messages':
+                        handleMessages(message);
                         break;
                     default:
                         // noop

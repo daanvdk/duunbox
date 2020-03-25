@@ -95,12 +95,12 @@ def send_game_update(game):
         })
 
 
-def send_game_message(game, key, params, *, player=None):
+def send_game_message(game, *messages, interval=1000, namespace=None):
     group_send(f'game_{game.code}', {
-        'type': 'game.message',
-        'key': key,
-        'params': params,
-        'player': player,
+        'type': 'game.messages',
+        'interval': interval,
+        'namespace': namespace,
+        'messages': messages,
     })
 
 
@@ -222,17 +222,18 @@ def game_join_view(request, data, code):
         except KeyError:
             player = Player.objects.create(game=game, name=data['name'])
             request.session[f'game_{code}'] = player.pk
-            send_game_message(player.game, 'player_joined', {
-                'name': player.name,
+            send_game_message(player.game, {
+                'key': 'game.message.playerJoined',
+                'params': {'name': player.name},
             })
         else:
             player = Player.objects.get(pk=player_pk)
             old_name = player.name
             player.name = data['name']
             player.save()
-            send_game_message(player.game, 'name_change', {
-                'old_name': old_name,
-                'new_name': player.name,
+            send_game_message(player.game, {
+                'key': 'game.message.nameChange',
+                'params': {'oldName': old_name, 'newName': player.name},
             })
     except IntegrityError:
         return JsonResponse(
@@ -263,8 +264,9 @@ def game_move_view(request, data, player):
             },
         )
 
-    def notify(*args, **kwargs):
-        send_game_message(player.game, *args, **kwargs)
+    def notify(*messages, **options):
+        options['namespace'] = f'game.{player.game.game}'
+        send_game_message(player.game, *messages, **options)
 
     game = GAMES[player.game.game]
 
@@ -273,7 +275,7 @@ def game_move_view(request, data, player):
 
         if form is None:
             return JsonResponse(
-                code=400,
+                status=400,
                 data={
                     'code': 'BadRequest',
                     'message': 'no_form',

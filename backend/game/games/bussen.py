@@ -39,17 +39,33 @@ def get_form(state, player):
 
     hand = state['hands'][player]
 
-    def card_action(check):
+    def card_action(handle_card):
         def action(notify, answer):
             deck = list(state['deck'])
             card = deck.pop()
 
-            if not check(card, answer):
-                notify(
-                    'bussen.drink',
-                    {'player': player, 'count': 1},
-                    player=player,
-                )
+            actual_answer, drink = handle_card(card, answer)
+
+            messages = [
+                {
+                    'key': f'message.playerAnswer',
+                    'params': {'player': player, 'answer': answer},
+                },
+                {
+                    'key': f'message.actualAnswer',
+                    'params': {'answer': actual_answer},
+                    'players': [player],
+                },
+            ]
+            if drink:
+                players, count = drink
+                messages.append({
+                    'key': f'message.drink',
+                    'params': {'players': players, 'count': count},
+                    'players': players,
+                })
+
+            notify(*messages)
 
             new_state = {
                 **state,
@@ -68,10 +84,17 @@ def get_form(state, player):
         # Color
         @card_action
         def action(card, answer):
-            if answer == 'color.value.red':
-                return card['suit'] in {'diamonds', 'hearts'}
-            elif answer == 'color.value.black':
-                return card['suit'] in {'spades', 'clubs'}
+            if card['suit'] in {'diamonds', 'hearts'}:
+                actual_answer = 'color.value.red'
+            else:
+                actual_answer = 'color.value.black'
+
+            if answer == actual_answer:
+                drink = None
+            else:
+                drink = [player], 1
+
+            return actual_answer, drink
 
         return action, [{
             'type': 'choice',
@@ -86,12 +109,22 @@ def get_form(state, player):
         # Higher / Lower
         @card_action
         def action(card, answer):
-            if answer == 'higherLower.value.lower':
-                return compare(card, hand[0], suit=False) < 0
-            elif answer == 'higherLower.value.equal':
-                return compare(card, hand[0], suit=False) == 0
-            elif answer == 'higherLower.value.higher':
-                return compare(card, hand[0], suit=False) > 0
+            cmp = compare(card, hand[0], suit=False)
+            if cmp < 0:
+                actual_answer = 'higherLower.value.lower'
+            elif cmp == 0:
+                actual_answer = 'higherLower.value.equal'
+            elif cmp > 0:
+                actual_answer = 'higherLower.value.higher'
+
+            if answer == actual_answer:
+                drink = None
+            elif actual_answer == 'higherLower.value.equal':
+                drink = [player], 2
+            else:
+                drink = [player], 1
+
+            return actual_answer, drink
 
         return action, [{
             'type': 'choice',
@@ -108,25 +141,28 @@ def get_form(state, player):
         @card_action
         def action(card, answer):
             if compare(hand[0], hand[1]) > 0:
-                highest, lowest = hand
+                hi, lo = hand
             else:
-                lowest, highest = hand
+                lo, hi = hand
 
-            if answer == 'insideOutside.value.inside':
-                return (
-                    compare(card, lowest, suit=False) > 0 and
-                    compare(card, highest, suit=False) < 0
-                )
-            elif answer == 'insideOutside.value.equal':
-                return (
-                    compare(card, lowest, suit=False) == 0 or
-                    compare(card, highest, suit=False) == 0
-                )
-            elif answer == 'insideOutside.value.outside':
-                return (
-                    compare(card, lowest, suit=False) < 0 or
-                    compare(card, highest, suit=False) > 0
-                )
+            cmp_lo = compare(card, lo, suit=False)
+            cmp_hi = compare(card, hi, suit=False)
+
+            if cmp_lo > 0 and cmp_hi < 0:
+                actual_answer = 'insideOutside.value.inside'
+            elif cmp_lo == 0 or cmp_hi == 0:
+                actual_answer = 'insideOutside.value.equal'
+            elif cmp_lo < 0 or cmp_hi > 0:
+                actual_answer = 'insideOutside.value.outside'
+
+            if answer == actual_answer:
+                drink = None
+            elif actual_answer == 'insideOutside.value.equal':
+                drink = [player], 2
+            else:
+                drink = [player], 1
+
+            return actual_answer, drink
 
         return action, [{
             'type': 'choice',
@@ -140,15 +176,33 @@ def get_form(state, player):
 
     elif len(hand) == 3:
         # Inside / Outside
+        suits = {card['suit'] for card in hand}
+        if len(suits) == 3:
+            disco = next(suit for suit in SUITS if suit not in suits)
+        else:
+            disco = None
+
         @card_action
         def action(card, answer):
-            return f'suit.value.{card["suit"]}' == answer
+            if card['suit'] == disco:
+                actual_answer = 'suit.value.disco'
+            else:
+                actual_answer = 'suit.value.' + card['suit']
+
+            if answer != actual_answer:
+                drink = [player], 1
+            elif answer == 'suit.value.disco':
+                drink = [p for p in state['hands'] if p != player], 1
+            else:
+                drink = None
+
+            return actual_answer, drink
 
         return action, [{
             'type': 'choice',
             'label': 'suit.label',
             'choices': [
-                f'suit.value.{suit}'
+                f'suit.value.disco' if suit == disco else f'suit.value.{suit}'
                 for suit in SUITS
             ],
         }]

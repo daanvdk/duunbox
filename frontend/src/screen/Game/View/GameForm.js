@@ -13,7 +13,7 @@ function GameField({ game, field, value, onChange }) {
                 onChange={onChange}
                 options={field.choices.map((value) => ({
                     value,
-                    content: t(`game.${game}.form.${value}`),
+                    content: t(`game.${game}.${value}`),
                 }))}
             />
         );
@@ -21,7 +21,7 @@ function GameField({ game, field, value, onChange }) {
 
     if (field.label) {
         node = (
-            <Group label={t(`game.${game}.form.${field.label}`)}>
+            <Group label={t(`game.${game}.${field.label}`)}>
                 {node}
             </Group>
         );
