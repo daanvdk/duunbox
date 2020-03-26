@@ -22,6 +22,17 @@ services:
       - CU_SECRET=${SECRET}
     restart: always
 
+  celery:
+    build: 
+      context: backend
+      dockerfile: Dockerfile-celery
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - CU_DEBUG=False
+      - CU_SECRET=${SECRET}
+
   web:
     build:
       context: .

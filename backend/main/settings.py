@@ -122,3 +122,8 @@ STATIC_URL = '/static/'
 INSTALLED_GAMES = [
     'bussen',
 ]
+
+
+# Celery
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
