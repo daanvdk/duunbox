@@ -6,12 +6,12 @@ const PARAM = /\{\{(.*?)\}\}/g;
 
 const JOINERS = {
     en: (params) => (
-        params.length == 1
+        params.length === 1
         ? params[0]
         : `${params.slice(0, params.length - 2).join(', ')} and ${params[params.length - 1]}`
     ),
     nl: (params) => (
-        params.length == 1
+        params.length === 1
         ? params[0]
         : `${params.slice(0, params.length - 2).join(', ')} en ${params[params.length - 1]}`
     ),
