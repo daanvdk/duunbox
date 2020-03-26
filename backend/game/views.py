@@ -21,8 +21,9 @@ from .games import GAMES
 
 def with_player(view):
     def decorated_view(request, *args, code, **kwargs):
+        code = code.upper()
         try:
-            pk = request.session[f'game_{code.upper()}']
+            pk = request.session[f'game_{code}']
         except KeyError:
             if Game.objects.filter(code=code).exists():
                 return JsonResponse(
@@ -209,8 +210,9 @@ def game_detail_view(request, *args, **kwargs):
 })
 @transaction.atomic
 def game_join_view(request, data, code):
+    code = code.upper()
     try:
-        game = Game.objects.get(code=code.upper(), started=False)
+        game = Game.objects.get(code=code, started=False)
     except Game.DoesNotExist:
         return JsonResponse(
             status=404,
