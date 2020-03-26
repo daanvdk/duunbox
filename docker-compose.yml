@@ -19,6 +19,19 @@ services:
       - CU_DEBUG=True
       - CU_SECRET=${SECRET:-dev}
 
+  celery:
+    build: 
+      context: backend
+      dockerfile: Dockerfile-celery
+    volumes:
+      - ./backend:/app/src
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - CU_DEBUG=True
+      - CU_SECRET=${SECRET:-dev}
+
   frontend:
     build: frontend
     volumes:
