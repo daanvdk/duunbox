@@ -2,7 +2,7 @@ import secrets
 import math
 
 from django.http import JsonResponse
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 import channels.layers
 from asgiref.sync import async_to_sync
@@ -108,6 +108,7 @@ def send_game_message(game, *messages, interval=1000, namespace=None):
 @validate_body({
     'name': is_pre(is_str, is_not_blank),
 })
+@transaction.atomic
 def game_create_view(request, data):
     games = Game.objects.count()
     chars = max(math.ceil(math.log(games + 1, len(CODE_CHARS))) + 1, 4)
@@ -130,6 +131,7 @@ def game_create_view(request, data):
 
 @allow_methods('GET')
 @with_player
+@transaction.atomic
 def game_read_view(request, player):
     return JsonResponse(serialize_game(player))
 
@@ -140,6 +142,7 @@ def game_read_view(request, player):
     'game': is_in(set(GAMES)),
     'started': is_bool,
 }))
+@transaction.atomic
 def game_update_view(request, data, player):
     if not player.admin:
         return JsonResponse(
@@ -204,6 +207,7 @@ def game_detail_view(request, *args, **kwargs):
 @validate_body({
     'name': is_pre(is_str, is_not_blank),
 })
+@transaction.atomic
 def game_join_view(request, data, code):
     try:
         game = Game.objects.get(code=code.upper(), started=False)
@@ -254,6 +258,7 @@ def game_join_view(request, data, code):
 @validate_body(is_superdict_where({
     'type': is_str,
 }))
+@transaction.atomic
 def game_move_view(request, data, player):
     if not player.game.started:
         return JsonResponse(
