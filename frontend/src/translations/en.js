@@ -38,47 +38,48 @@ export default {
             submitButton: 'Submit',
         },
         message: {
-            name_change: '{{old_name}} changed their name to {{new_name}}.',
-            player_joined: '{{name}} has joined the game.',
-            bussen: {
-                drink: '{{player}}: Drink {{count}} sip!',
-                drink_plural: '{{player}}: Drink {{count}} sips!',
-            },
+            nameChange: '{{oldName}} changed their name to {{newName}}.',
+            playerJoined: '{{name}} has joined the game.',
         },
         bussen: {
-            form: {
-                color: {
-                    label: 'Red or black?',
-                    value: {
-                        red: 'Red',
-                        black: 'Black',
-                    },
+            color: {
+                label: 'Red or black?',
+                value: {
+                    red: 'Red',
+                    black: 'Black',
                 },
-                higherLower: {
-                    label: 'Higher or lower?',
-                    value: {
-                        higher: 'Higher',
-                        equal: 'Equal',
-                        lower: 'Lower',
-                    },
+            },
+            higherLower: {
+                label: 'Higher or lower?',
+                value: {
+                    higher: 'Higher',
+                    equal: 'Equal',
+                    lower: 'Lower',
                 },
-                insideOutside: {
-                    label: 'Inside or outside?',
-                    value: {
-                        inside: 'Inside',
-                        equal: 'Equal',
-                        outside: 'Outside',
-                    },
+            },
+            insideOutside: {
+                label: 'Inside or outside?',
+                value: {
+                    inside: 'Inside',
+                    equal: 'Equal',
+                    outside: 'Outside',
                 },
-                suit: {
-                    label: 'Suit?',
-                    value: {
-                        spades: 'Spades',
-                        diamonds: 'Diamonds',
-                        clubs: 'Clubs',
-                        hearts: 'Hearts',
-                    },
+            },
+            suit: {
+                label: 'Suit?',
+                value: {
+                    spades: 'Spades',
+                    diamonds: 'Diamonds',
+                    clubs: 'Clubs',
+                    hearts: 'Hearts',
+                    discos: 'Disco',
                 },
+            },
+            message: {
+                playerAnswer: '{{player}} says {{answer!trans!lower}}.',
+                actualAnswer: 'It is {{answer!trans!lower}}!',
+                drink: '{{players}}, drink!',
+                drink_plural: '{{players}}, drink {{count}} times!',
             },
         },
     },
