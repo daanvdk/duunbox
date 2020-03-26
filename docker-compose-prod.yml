@@ -18,8 +18,8 @@ services:
       - postgres
       - redis
     environment:
-      - CU_DEBUG=False
-      - CU_SECRET=${SECRET}
+      - DUUN_DEBUG=False
+      - DUUN_SECRET=${SECRET}
     restart: always
 
   celery:
@@ -30,8 +30,8 @@ services:
       - postgres
       - redis
     environment:
-      - CU_DEBUG=False
-      - CU_SECRET=${SECRET}
+      - DUUN_DEBUG=False
+      - DUUN_SECRET=${SECRET}
 
   web:
     build:

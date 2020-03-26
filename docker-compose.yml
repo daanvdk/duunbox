@@ -16,8 +16,8 @@ services:
       - postgres
       - redis
     environment:
-      - CU_DEBUG=True
-      - CU_SECRET=${SECRET:-dev}
+      - DUUN_DEBUG=True
+      - DUUN_SECRET=${SECRET:-dev}
 
   celery:
     build: 
@@ -29,8 +29,8 @@ services:
       - postgres
       - redis
     environment:
-      - CU_DEBUG=True
-      - CU_SECRET=${SECRET:-dev}
+      - DUUN_DEBUG=True
+      - DUUN_SECRET=${SECRET:-dev}
 
   frontend:
     build: frontend
