@@ -85,20 +85,20 @@ const Player = styled.div`
 
 const GAMES = ['bussen'];
 
-export default function GameLobbyScreen({ game, setGame }) {
+export default function GameLobbyScreen({ room, setRoom }) {
     const t = useTranslations();
     const [nameChange, setNameChange] = useState(false);
     const createToast = useToasts();
-    const self = useMemo(() => game.players.find(({ self }) => self), [game]);
+    const self = useMemo(() => room.players.find(({ self }) => self), [room]);
 
     function onSubmit(e) {
         e.preventDefault();
-        if (!self || !self.admin || !game.game) {
+        if (!self || !self.admin || !room.game) {
             return;
         }
 
         return (
-            api.put(`game/${game.code}/`, { started: true })
+            api.put(`room/${room.code}/`, { started: true })
             .catch((error) => {
                 if (error.response) {
                     createToast(t('game.lobby.error.couldNotStart'), { error: true });
@@ -121,18 +121,18 @@ export default function GameLobbyScreen({ game, setGame }) {
                 <UnderTitle>{t('main.underTitle')}</UnderTitle>
                 <Form onSubmit={onSubmit}>
                     <Group label={t('game.lobby.code.label')}>
-                        <Code>{game.code}</Code>
+                        <Code>{room.code}</Code>
                     </Group>
                     <Group label={t('game.lobby.game.label')}>
                         <RadioButtons vertical
-                            value={game.game}
+                            value={room.game}
                             onChange={(value) => {
                                 if (!self || !self.admin) {
                                     return;
                                 }
 
-                                api.put(`game/${game.code}/`, { game: value })
-                                    .then(({ data }) => setGame(data))
+                                api.put(`room/${room.code}/`, { game: value })
+                                    .then(({ data }) => setRoom(data))
                                     .catch((error) => (
                                         error.response && error.response.status === 400
                                         ? createToast(t('game.lobby.error.invalidGame'), { warning: true })
@@ -144,7 +144,7 @@ export default function GameLobbyScreen({ game, setGame }) {
                     </Group>
                     <Group label={t('game.lobby.players.label')}>
                         <PlayerContainer>
-                            {game.players.map(({ name, admin, self }, i) => (
+                            {room.players.map(({ name, admin, self }, i) => (
                                 <Player key={i} self={self}>
                                     {admin && <Icon name="crown" />}
                                     {name}
@@ -155,7 +155,7 @@ export default function GameLobbyScreen({ game, setGame }) {
                     </Group>
                     <Button primary
                         icon="play"
-                        disabled={!self || !self.admin || !game.game}
+                        disabled={!self || !self.admin || !room.game}
                     >
                         {t('game.lobby.startButton')}
                     </Button>
@@ -164,7 +164,7 @@ export default function GameLobbyScreen({ game, setGame }) {
             <NameChangeModal
                 open={nameChange}
                 onClose={() => setNameChange(false)}
-                code={game.code}
+                code={room.code}
                 defaultName={self.name}
             />
         </React.Fragment>

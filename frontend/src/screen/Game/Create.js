@@ -50,7 +50,7 @@ export default function GameCreateScreen({ defaultCode, afterSubmit }) {
 
         // Create game
         const promise = (
-            api.post(code === '' ? 'game/' : `game/${code}/join/`, { name })
+            api.post(code === '' ? 'room/' : `room/${code}/join/`, { name })
             .then(({ data: { code } }) => {
                 localStorage.setItem('name', name);
                 history.push(`/${code}`);

@@ -4,7 +4,7 @@ from is_valid import is_str
 from is_valid.test import assert_valid
 
 
-class GameTests(TestCase):
+class RoomTests(TestCase):
 
     def test_lobby(self):
         client_foo = Client()
@@ -12,7 +12,7 @@ class GameTests(TestCase):
 
         # Foo can create
         res = client_foo.post(
-            '/api/game/',
+            '/api/room/',
             content_type='application/json',
             data={
                 'name': 'Foo',
@@ -30,7 +30,7 @@ class GameTests(TestCase):
         code = res.json()['code']
 
         # Foo can view
-        res = client_foo.get(f'/api/game/{code}/')
+        res = client_foo.get(f'/api/room/{code}/')
         self.assertEqual(res.status_code, 200)
         assert_valid(res.json(), {
             'code': is_str,
@@ -43,7 +43,7 @@ class GameTests(TestCase):
 
         # Bar can join
         res = client_bar.post(
-            f'/api/game/{code}/join/',
+            f'/api/room/{code}/join/',
             content_type='application/json',
             data={
                 'name': 'Bar',
@@ -61,7 +61,7 @@ class GameTests(TestCase):
         })
 
         # Foo can see bar
-        res = client_foo.get(f'/api/game/{code}/')
+        res = client_foo.get(f'/api/room/{code}/')
         self.assertEqual(res.status_code, 200)
         assert_valid(res.json(), {
             'code': is_str,
@@ -74,7 +74,7 @@ class GameTests(TestCase):
         })
 
         # Bar can view
-        res = client_bar.get(f'/api/game/{code}/')
+        res = client_bar.get(f'/api/room/{code}/')
         self.assertEqual(res.status_code, 200)
         assert_valid(res.json(), {
             'code': is_str,

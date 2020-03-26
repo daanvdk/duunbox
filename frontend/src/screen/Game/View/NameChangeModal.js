@@ -15,7 +15,7 @@ export default function ChangeNameModal({ code, defaultName, onClose, ...props }
         }
 
         return (
-            api.post(`game/${code}/join/`, { name })
+            api.post(`room/${code}/join/`, { name })
             .then(() => {
                 localStorage.setItem('name', name);
                 onClose();

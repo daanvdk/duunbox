@@ -1,14 +1,13 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.conf import settings
 
-from .games import GAMES
 
-
-class Game(models.Model):
+class Room(models.Model):
 
     code = models.TextField(primary_key=True)
     game = models.TextField(
-        choices=[(name, name) for name in sorted(GAMES)],
+        choices=[(name, name) for name in settings.INSTALLED_GAMES],
         blank=True, null=True,
     )
     started = models.BooleanField(default=False)
@@ -20,8 +19,8 @@ class Game(models.Model):
 
 class Player(models.Model):
 
-    game = models.ForeignKey(
-        'Game', on_delete=models.CASCADE,
+    room = models.ForeignKey(
+        'Room', on_delete=models.CASCADE,
         related_name='players',
     )
     name = models.TextField()
@@ -31,4 +30,4 @@ class Player(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [('game', 'name')]
+        unique_together = [('room', 'name')]

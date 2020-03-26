@@ -38,51 +38,51 @@ const PROTOCOL_MAP = {
 function useGame(code) {
     const [data, setData] = useState({ loading: true });
 
-    const setGame = useCallback((game) => {
-        setData((data) => ({ ...data, game }));
+    const setRoom = useCallback((room) => {
+        setData((data) => ({ ...data, room }));
     }, [setData]);
 
     useEffect(() => {
         setData({ loading: true });
 
         const refetch = () => (
-            api.get(`game/${code}/`)
-            .then(({ data: game }) => setData({ loading: false, game, refetch }))
+            api.get(`room/${code}/`)
+            .then(({ data: room }) => setData({ loading: false, room, refetch }))
             .catch((error) => setData({ loading: false, error, refetch }))
         );
 
         refetch();
     }, [code]);
 
-    return { ...data, setGame };
+    return { ...data, setRoom };
 }
 
 export default function GameViewScreen({ code }) {
     const t = useTranslations();
-    const { loading, game, error, refetch, setGame } = useGame(code);
+    const { loading, room, error, refetch, setRoom } = useGame(code);
     const socketRef = useRef();
     const createToast = useToasts();
 
-    const gameCode = useMemo(() => game && game.code, [game]);
+    const roomCode = useMemo(() => room && room.code, [room]);
     const self = useMemo(() => {
-        if (game) {
-            for (const player of game.players) {
+        if (room) {
+            for (const player of room.players) {
                 if (player.self) {
                     return player.name;
                 }
             }
         }
         return null;
-    }, [game]);
+    }, [room]);
 
     useEffect(() => {
         if (socketRef.current) {
             socketRef.current.close();
             socketRef.current = undefined;
         }
-        if (gameCode) {
+        if (roomCode) {
             socketRef.current = new WebSocket(
-                `${PROTOCOL_MAP[window.location.protocol]}//${window.location.host}/api/game/${gameCode}/`
+                `${PROTOCOL_MAP[window.location.protocol]}//${window.location.host}/api/room/${roomCode}/`
             );
 
             function handleMessages({ messages, interval, namespace }) {
@@ -102,10 +102,10 @@ export default function GameViewScreen({ code }) {
             socketRef.current.onmessage = (message) => {
                 message = JSON.parse(message.data);
                 switch (message.type) {
-                    case 'game.update':
-                        setGame(message.game);
+                    case 'room.update':
+                        setRoom(message.room);
                         break;
-                    case 'game.messages':
+                    case 'room.messages':
                         handleMessages(message);
                         break;
                     default:
@@ -113,7 +113,7 @@ export default function GameViewScreen({ code }) {
                 }
             };
         }
-    }, [gameCode, self, createToast, setGame, t]);
+    }, [roomCode, self, createToast, setRoom, t]);
 
     if (loading) {
         return <Loader />;
@@ -127,28 +127,28 @@ export default function GameViewScreen({ code }) {
         }
     }
 
-    if (!game.started) {
-        return <GameLobby game={game} setGame={setGame} />;
+    if (!room.started) {
+        return <GameLobby room={room} setRoom={setRoom} />;
     }
 
     return (
         <Container>
             <GameContainer>
                 <Scrollbars>
-                    {game.game === 'bussen' ? (
-                        <Bussen game={game} />
+                    {room.game === 'bussen' ? (
+                        <Bussen room={room} />
                     ) : (
-                        <pre>{jsonFormat(game)}</pre>
+                        <pre>{jsonFormat(room)}</pre>
                     )}
                 </Scrollbars>
             </GameContainer>
-            {game.form && (
+            {room.form && (
                 <FormContainer>
                     <GameForm
-                        game={game.game}
-                        form={game.form}
+                        game={room.game}
+                        form={room.form}
                         onSubmit={(fields) => (
-                            api.post(`game/${game.code}/move/`, {
+                            api.post(`room/${room.code}/action/`, {
                                 type: 'form',
                                 fields,
                             })

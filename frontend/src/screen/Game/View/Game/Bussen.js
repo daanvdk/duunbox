@@ -42,11 +42,11 @@ const CardContainer = styled.div`
     }
 `;
 
-export default function Bussen({ game }) {
+export default function Bussen({ room }) {
     return (
         <Container>
             <Form>
-                {game.players.map(({ name: player, self }) => (
+                {room.players.map(({ name: player, self }) => (
                     <StyledGroup
                         key={player}
                         label={
@@ -55,13 +55,13 @@ export default function Bussen({ game }) {
                                 {player}
                             </React.Fragment>
                         }
-                        active={player === game.state.turn}
+                        active={player === room.state.turn}
                     >
                         <CardContainer>
                             {range(4).map((i) => (
                                 <Card key={i} card={
-                                    i < game.state.hands[player].length
-                                    ? game.state.hands[player][i]
+                                    i < room.state.hands[player].length
+                                    ? room.state.hands[player][i]
                                     : 'back'
                                 } />
                             ))}
